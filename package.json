@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "mongoose": "^9.1.2"
+  },
+  "name": "secret-vault-api",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/e-mandy/secret-vault-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/e-mandy/secret-vault-api/issues"
+  },
+  "homepage": "https://github.com/e-mandy/secret-vault-api#readme"
+}
