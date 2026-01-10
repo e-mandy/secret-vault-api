@@ -48,7 +48,11 @@ secretRoutes.get('/secrets:secretId', async (req, res) => {
             let decrypted = decipher.update(encrypted.encryptedContent, 'hex', 'utf-8');
             decrypted += decipher.final('utf-8');
     
-            return decrypted;
+            return {
+                title: encrypted.title,
+                content: decrypted,
+                createdAt: encrypted.createdAt
+            }
         });
     
         return res.status(200).json({
