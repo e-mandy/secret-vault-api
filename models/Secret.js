@@ -10,11 +10,14 @@ const secretSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    content: {
+    encryptedContent: {
+        type: String,
+        required: true
+    },
+    iv: {
         type: String,
         required: true
     }
-});
+}, { timestamps: true });
 
 export default mongoose.model('Secret', secretSchema);
-
