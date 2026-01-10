@@ -1,6 +1,9 @@
 import express from 'express';
 import Secret from '../models/Secret';
 import crypto from 'crypto';
+import { verifyOTP } from '../utils/otp_verify'
+import authenticate from '../middlewares/authenticate';
+
 
 
 const secretRoutes = express.Router();
@@ -67,6 +70,36 @@ secretRoutes.get('/secrets:secretId', async (req, res) => {
         })
     }
     
+});
+
+secretRoutes.post('/verify-access', authenticate, async (req, res) => {
+    const { token } = req.body;
+    const id = req.user.userId
+
+    if(token == undefined) return res.status(401).json({
+        code: 401,
+        message: "Code invalide"
+    });
+
+    try{
+        // Nous n'avons pas crée le model User dans ce cas, on suppose qu'il existe
+        const user = await User.findOne({ _id: id });
+
+        if(!verifyOTP(token, user.TwoFASecret)) return res.status(403).json({
+            code: 401,
+            message: "Code invalide"
+        });
+
+        return res.status(200).json({
+            usuerId: id,
+            TwoFAActivate: true
+        });
+    }catch(error){
+        res.status(400).json({
+            code: 400,
+            message: error.name
+        });
+    }
 });
 
 export default secretRoutes;
