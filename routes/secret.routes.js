@@ -3,7 +3,7 @@ import Secret from '../models/Secret';
 import crypto from 'crypto';
 import { verifyOTP } from '../utils/otp_verify'
 import authenticate from '../middlewares/authenticate';
-
+import jwt from 'jsonwebtoken';
 
 
 const secretRoutes = express.Router();
@@ -90,9 +90,11 @@ secretRoutes.post('/verify-access', authenticate, async (req, res) => {
             message: "Code invalide"
         });
 
+        const elevated_token = jwt.sign({ userId: id, TwoFAActivate: true }, process.env.SECRET_APP_KEY, { expiresIn: '15m' });
+
         return res.status(200).json({
-            usuerId: id,
-            TwoFAActivate: true
+            code: 200,
+            elevated_token
         });
     }catch(error){
         res.status(400).json({
