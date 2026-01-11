@@ -41,6 +41,7 @@ twoFactRoutes.post('/activate', async (req, res) => {
     const { token } = req.body;
     const id = req.user.userId;
 
+    // Verifier si le token est vide d'abord (ne devrions nous pas le mettre dans un middleware ?)
     try{
         const user = await User.findOne({ _id: id });
     
@@ -49,9 +50,9 @@ twoFactRoutes.post('/activate', async (req, res) => {
             message: "Invalid credentials"
         });
     
-        if(!verifyCode(token, user.TwoFASecret)) return res.status(401).json({
-            code: 401,
-            message: "Code invalid"
+        if(!verifyCode(token, user.TwoFASecret)) return res.status(403).json({
+            code: 403,
+            message: "User unrecognized"
         });
     
         user.TwoFAActive = true;
@@ -74,5 +75,35 @@ twoFactRoutes.post('/activate', async (req, res) => {
             message: error.name
         });
     }
+});
 
+twoFactRoutes.post('/disabled', async (req, res) => {
+    const { token } = req.body;
+    const id = req.user.userId;
+
+    try{
+        const user = await User.findOne({ _id: id });
+    
+        if(!user) return res.status(401).json({
+            code: 401,
+            message: "Invalid credentials"
+        });
+    
+        if(!verifyCode(token, user.TwoFASecret)) return res.status(403).json({
+            code: 403,
+            message: "User unrecognized"
+        });
+
+        user.TwoFAActive = false;
+
+        res.status(200).json({
+            code: 200,
+            message: "Two factor authentication disabled"
+        })
+    }catch(error){
+        return res.status(500).json({
+            code: 500,
+            message: error.name
+        });
+    }
 });
