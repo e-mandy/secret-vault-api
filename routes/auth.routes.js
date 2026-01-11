@@ -77,3 +77,14 @@ authRoutes.post('/login', async (req, res) => {
         }
     });
 });
+
+authRoutes.post('/logout', async (req, res) => {
+    res.clearCookie('refreshToken', {
+        httpOnly: true
+    });
+
+    res.status(200).json({
+        code: 200,
+        message: "User deconnected successfully"
+    })
+});
