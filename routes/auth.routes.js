@@ -88,3 +88,5 @@ authRoutes.post('/logout', async (req, res) => {
         message: "User deconnected successfully"
     })
 });
+
+export default authRoutes;
