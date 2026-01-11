@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { verifyOTP } from '../utils/otp_verify'
 import authenticate from '../middlewares/authenticate';
 import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
 
 const secretRoutes = express.Router();
@@ -82,15 +83,12 @@ secretRoutes.post('/verify-access', authenticate, async (req, res) => {
     });
 
     try{
-        // Nous n'avons pas crée le model User dans ce cas, on suppose qu'il existe
         const user = await User.findOne({ _id: id });
 
         if(!verifyOTP(token, user.TwoFASecret)) return res.status(403).json({
             code: 401,
             message: "Code invalide"
         });
-
-        const elevated_token = jwt.sign({ userId: id, TwoFAActivate: true }, process.env.SECRET_APP_KEY, { expiresIn: '15m' });
 
         return res.status(200).json({
             code: 200,

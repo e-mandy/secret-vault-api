@@ -8,5 +8,5 @@ export const generateSecret = async () => {
 }
 
 export const verifyCode = (token, secret) => {
-    return authenticator.verify({ token, secret });
+    return authenticator.check(token, secret);
 }

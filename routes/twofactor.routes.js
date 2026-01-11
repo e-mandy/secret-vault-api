@@ -1,1 +1,78 @@
 import express from 'express';
+import User from '../models/User';
+import { generateSecret, verifyCode } from '../utils/authenticator';
+import { generateQRCode } from '../utils/qrCode';
+
+const twoFactRoutes = express.Router();
+
+twoFactRoutes.get('/setup', async (req, res) => {
+    const { email } = req.body;
+
+    try{
+        const user = await User.findOne({ email });
+
+        if(!user) return res.status(401).json({
+            code: 401,
+            message: "Invalid credentials",
+        });
+
+        const userSecret = generateSecret();
+
+        user.TwoFASecret = userSecret;
+
+        await user.save();
+
+        const qrCode = await generateQRCode(email, userSecret);
+
+        res.status(200).json({
+            code: 200,
+            message: "QR Code envoyé et en attente de validation",
+            qrCode
+        })
+    }catch(error){
+        return res.status(500).json({
+            code: 500,
+            message: error.message
+        });
+    }
+});
+
+twoFactRoutes.post('/activate', async (req, res) => {
+    const { token } = req.body;
+    const id = req.user.userId;
+
+    try{
+        const user = await User.findOne({ _id: id });
+    
+        if(!user) return res.status(401).json({
+            code: 401,
+            message: "Invalid credentials"
+        });
+    
+        if(!verifyCode(token, user.TwoFASecret)) return res.status(401).json({
+            code: 401,
+            message: "Code invalid"
+        });
+    
+        user.TwoFAActive = true;
+    
+        await user.save();
+    
+        // Maintenant là on doit générer les 10 recovery codes pour les cas de perte.
+    
+        const elevated_token = jwt.sign({ userId: id, TwoFAActivate: true }, process.env.SECRET_APP_KEY, { expiresIn: '15m' }); // Tu te demandes l'intérêt du 15min si c'est demandé every time
+
+        return res.status(200).json({
+            code: 200,
+            message: "2FA Activated successfully",
+            elevated_token
+        })
+        
+    }catch(error){
+        return res.status(500).json({
+            code: 500,
+            message: error.name
+        });
+    }
+
+});

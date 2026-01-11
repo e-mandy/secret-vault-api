@@ -16,6 +16,10 @@ const userSchema = mongoose.Schema({
         type: String,
         default: null,
     },
+    TwoFAActive: {
+        type: Boolean,
+        default: false
+    },
     recoveryCodes: [
         {
             type: String,
